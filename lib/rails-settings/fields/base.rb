@@ -19,6 +19,15 @@ module RailsSettings
       end
 
       def saved_value
+        # For file fields, bypass caching entirely to avoid ActiveStorage serialization issues
+        if type == :file
+          return nil unless table_exists?
+          # For file fields, always check the database directly
+          parent_record = parent.find_by(var: key)
+          return parent_record&.value
+        end
+
+        # For non-file fields, use cached settings
         return parent.send(:_all_settings)[key] if table_exists?
 
         # Fallback to default value if table was not ready (before migrate)
@@ -65,9 +74,16 @@ module RailsSettings
 
         def fetch_field_class(type)
           field_class_name = type.to_s.split("_").map(&:capitalize).join("")
+
+          # Special handling for file type
+          if type == :file
+            field_class_name = "FileField"
+          end
+
           begin
-            const_get("::RailsSettings::Fields::#{field_class_name}")
-          rescue StandardError
+            result = const_get("::RailsSettings::Fields::#{field_class_name}")
+            result
+          rescue StandardError => e
             ::RailsSettings::Fields::String
           end
         end

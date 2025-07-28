@@ -94,7 +94,15 @@ module RailsSettings
         @defined_fields ||= []
         @defined_fields << field
 
-        define_singleton_method(key) { field.read }
+        # For file fields, we need to call the field's read method at execution time
+        if type == :file
+          define_singleton_method(key) do
+            field_obj = @defined_fields.find { |f| f.key == key }
+            field_obj&.read
+          end
+        else
+          define_singleton_method(key) { field.read }
+        end
 
         unless readonly
           define_singleton_method("#{key}=") { |value| field.save!(value: value) }
@@ -110,6 +118,12 @@ module RailsSettings
           define_singleton_method("#{key}?") do
             send(key)
           end
+        end
+
+        # Create attachment association for file fields
+        if type == :file
+          attachment_name = "file_#{key}"
+          has_one_attached attachment_name.to_sym
         end
 
         # delegate instance get method to class for support:
