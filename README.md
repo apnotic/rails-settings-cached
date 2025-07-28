@@ -47,6 +47,11 @@ class Setting < RailsSettings::Base
     field :captcha_enable, type: :boolean, default: true
   end
 
+  scope :uploads do
+    field :logo, type: :file
+    field :document, type: :file
+  end
+
   field :notification_options, type: :hash, default: {
     send_all: true,
     logging: true,
@@ -64,6 +69,15 @@ The `scope` method allows you to group the keys for admin UI.
 Now just put that migration in the database with:
 
 ```bash
+$ rails db:migrate
+```
+
+### ActiveStorage Setup (for file fields)
+
+If you're using file fields with ActiveStorage, you'll also need to install ActiveStorage:
+
+```bash
+$ rails active_storage:install
 $ rails db:migrate
 ```
 
@@ -130,7 +144,17 @@ irb > Setting.notification_options
 {
   sender_email: "notice@rubyonrails.org"
 }
-```
+
+# File uploads with ActiveStorage
+irb > Setting.logo = uploaded_file
+irb > Setting.logo.attached?
+true
+irb > Setting.logo.filename
+"logo.png"
+irb > Setting.logo.url
+"https://example.com/rails/active_storage/blobs/..."
+irb > Setting.logo.download
+# Returns the file content
 
 ### Get defined fields
 

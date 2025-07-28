@@ -5,6 +5,8 @@ module RailsSettings
     PROTECTED_KEYS = %w[var value]
     self.table_name = table_name_prefix + "settings"
 
+    has_one_attached :file
+
     after_commit :clear_cache, on: %i[create update destroy]
 
     # get the value field, YAML decoded
