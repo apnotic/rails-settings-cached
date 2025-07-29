@@ -53,6 +53,7 @@ class Setting < RailsSettings::Base
     field :array_item, type: :array
     field :hash_item, type: :hash
     field :custom_item, type: :custom, default: 1
+    field :file_item, type: :file
   end
 
   field :key_with_more_options, type: :array, validates: {presence: true}, default: %w[foo bar], foo: 1, section: :theme
