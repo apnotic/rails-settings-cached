@@ -2,6 +2,10 @@
 
 module RailsSettings
   class Base < ActiveRecord::Base
+    include ActiveStorage::Reflection::ActiveRecordExtensions
+    ActiveRecord::Reflection.singleton_class.prepend(ActiveStorage::Reflection::ReflectionExtension)
+    include ActiveStorage::Attached::Model
+
     PROTECTED_KEYS = %w[var value]
     self.table_name = table_name_prefix + "settings"
 
