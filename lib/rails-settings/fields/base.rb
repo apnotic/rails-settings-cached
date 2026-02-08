@@ -33,7 +33,7 @@ module RailsSettings
         # Fallback to default value if table was not ready (before migrate)
         puts(
           "WARNING: table: \"#{parent.table_name}\" does not exist or not database connection, `#{parent.name}.#{key}` fallback to returns the default value."
-        )
+        ) unless Rails.env.production?
         nil
       end
 
