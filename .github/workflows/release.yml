@@ -1,0 +1,26 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: release
+    permissions:
+      id-token: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: "3.4"
+          bundler-cache: true
+      - name: Check tag matches lib/rails-settings/version.rb
+        run: |
+          version=$(ruby -Ilib -e 'require "rails-settings/version"; print RailsSettings.version')
+          if [ "v$version" != "${GITHUB_REF_NAME}" ]; then
+            echo "Tag ${GITHUB_REF_NAME} does not match version v$version"
+            exit 1
+          fi
+      - uses: rubygems/release-gem@v1
