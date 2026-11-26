@@ -14,6 +14,10 @@ jobs:
       fail-fast: false
       matrix:
         include:
+          - ruby: 3.4
+            gemfile: Gemfile
+          - ruby: 3.4
+            gemfile: gemfiles/Gemfile-8-1
           - ruby: 3.3
             gemfile: Gemfile
           - ruby: 3.3
@@ -24,27 +28,22 @@ jobs:
             gemfile: gemfiles/Gemfile-7-1
           - ruby: 3.2
             gemfile: gemfiles/Gemfile-7-0
-          - ruby: 3.2
-            gemfile: gemfiles/Gemfile-6-1
-          - ruby: 3.1
-            gemfile: gemfiles/Gemfile-7-0
-          - ruby: 3.0.0
-            gemfile: gemfiles/Gemfile-6-1
-          - ruby: 2.7
-            gemfile: gemfiles/Gemfile-6-0
-          - ruby: 2.6
-            gemfile: gemfiles/Gemfile-5-2
-          - ruby: 2.5
-            gemfile: gemfiles/Gemfile-5-0
     env:
       CI: 1
       BUNDLE_GEMFILE: ${{ matrix.gemfile }}
       USE_OFFICIAL_GEM_SOURCE: 1
       CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: ${{ matrix.ruby }}
           bundler-cache: true
       - run: bundle exec rails test
+      - uses: codecov/codecov-action@v5
+        if: ${{ !cancelled() }}
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: coverage/coverage.xml
+          flags: ruby-${{ matrix.ruby }}
+          fail_ci_if_error: false
